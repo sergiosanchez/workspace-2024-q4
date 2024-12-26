@@ -1,0 +1,4 @@
+Bundle-Name: gcanta-editor-accesibilidad
+Bundle-SymbolicName: editor.accesibilidad
+Bundle-Version: 1.0.0
+Export-Package: gcanta.editor.accesibilidad.constants
