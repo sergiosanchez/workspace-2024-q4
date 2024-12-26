@@ -1,0 +1,8 @@
+assemble:
+    - from: build
+      into: static
+liferay-editor-config-contributor-mju-check-roles:
+    editorConfigKeys:
+    name: Liferay Editor Config Contributor to remove a toolbar in CKEditor
+    type: editorConfigContributor
+    url: index.js
