@@ -10,57 +10,76 @@ import {
 declare var CKEDITOR: any;
 declare var Liferay: any;
 
+const checkRoles = async() => {
 
-const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
+	try {
 
-	// CKEditor
-	console.log(config);
-
-	const toolbar: [string[]] = config.toolbar_liferay;
-
-	console.log(toolbar);
-
-	let transformedConfig: any;
-
-	if (Array.isArray(toolbar)) {
+		/* Retrive the roles of the current user */
+		const result = await Liferay.Util.fetch(`/o/headless-admin-user/v1.0/my-user-account`, {method: 'GET'});
 		
-		try {
-			/* Retrieve the roles of the current user */
-			const result = Liferay.Util.fetch(`/o/headless-admin-user/v1.0/my-user-account`, {method: 'GET'});
-			console.log("Result:" + result);
-			const liferayUser = result.json();
+		const {roleBriefs} = await result.json();
+		console.log("Roles:" + roleBriefs);
 
-			const {roleBriefs} = liferayUser;
-			console.log("Roles:" + roleBriefs);
-			/* Check if within the roles, Administrator is included */
-			const roleIncluded = roleBriefs.filter(e => e.name.includes('Administrator'));
-			console.log("Role Administrator?: " + roleIncluded);
+		/* Check if within the roles, Administrator is included */
+		const roleIncluded = roleBriefs.filter(e => e.name.includes('Administrator'));
+		console.log("Role Administrator?: " + roleIncluded);
+		return roleIncluded;    
+	} catch (error) {
+		console.log(error);
+	}
+}
 
-			if (roleIncluded) {
-				/* Remove the toolbar with table, etc. */
-				console.log("toolbar removed");
-				const rem = toolbar.splice(4, 1);
+const editorConfigTransformer: EditorConfigTransformer<any> = async(config) => {
+
+	try {
+		// CKEditor
+		console.log(config);
+
+		const toolbar: [string[]] = config.toolbar_liferay;
+
+		console.log(toolbar);
+
+		let transformedConfig: any;
+
+		if (Array.isArray(toolbar)) {
+
+			console.log("Checking roles");
+
+			const roles = await checkRoles();
+		    
+		    if (roles) {
+	            console.log("roles:", roles);
+
+	            const hasTableElement = (element) => element.includes('Table');
+
+				const position = toolbar.findIndex(hasTableElement);
+				console.log("toolbar position: " + position);
+				const rem = toolbar.splice(position, 1);
 			
-	   			console.log(rem);
-	   		}
+	   			console.log("toolbar deleted: " + rem);
+				
+			}
 
-		} catch (error) {
-			console.log(error);
 		}
-	
-		
+
 		transformedConfig = {
 			...config,
 			toolbar,
 		};
+
+		const extraPlugins: string = config.extraPlugins;
+
+		return {
+			...transformedConfig,
+			extraPlugins: extraPlugins ? `${extraPlugins}` : '',
+		};
+	} catch (error) {
+		console.log(error);
 	}
+	console.log("Finished toolbar changes");
 
-	const extraPlugins: string = config.extraPlugins;
-
-	return {
-		...transformedConfig,
-		extraPlugins: extraPlugins ? `${extraPlugins}` : '',
-	};
+	
+	
 };
 
 const editorTransformer: EditorTransformer<any> = {

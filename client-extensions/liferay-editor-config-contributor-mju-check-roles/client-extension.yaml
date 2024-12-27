@@ -3,6 +3,11 @@ assemble:
       into: static
 liferay-editor-config-contributor-mju-check-roles:
     editorConfigKeys:
+    - sampleAlloyEditor
+    - sampleClassicEditor
+    - sampleLegacyEditor
+    - contentEditor
+    - rich_text
     name: Liferay Editor Config Contributor to remove a toolbar in CKEditor
     type: editorConfigContributor
     url: index.js
