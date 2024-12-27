@@ -10,28 +10,6 @@ import {
 declare var CKEDITOR: any;
 declare var Liferay: any;
 
-const getMyUserAcount = async() => {
-	try {
-		/* Retrive the roles of the current user */
-		const result = await Liferay.Util.fetch(`/o/headless-admin-user/v1.0/my-user-account`, {method: 'GET'});
-		return result.json();     
-	} catch (error) {
-		console.log(error);
-	}
-}
-
-const checkRoles = async () => {
-	try {
-	 	const result = await getMyUserAcount();
-		const {roleBriefs} = result;
-		console.log("Roles:" + roleBriefs);
-		/* Check if within the roles, Administrator is included */
-		const roleIncluded = roleBriefs.filter(e => e.name.includes('Administrator'));
-		console.log("Role Administrator?: " + roleIncluded);
-	} catch (error) {
-		console.log(error);
-	}
-}
 
 const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
 
@@ -45,15 +23,31 @@ const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
 	let transformedConfig: any;
 
 	if (Array.isArray(toolbar)) {
-		let hasRoles = checkRoles();
-
-		if (hasRoles) {
-			/* Remove the toolbar with table, etc. */
-			console.log("toolbar removed");
-			const rem = toolbar.splice(4, 1);
 		
-   			console.log(rem);
-   		}
+		try {
+			/* Retrieve the roles of the current user */
+			const result = Liferay.Util.fetch(`/o/headless-admin-user/v1.0/my-user-account`, {method: 'GET'});
+			console.log("Result:" + result);
+			const liferayUser = result.json();
+
+			const {roleBriefs} = liferayUser;
+			console.log("Roles:" + roleBriefs);
+			/* Check if within the roles, Administrator is included */
+			const roleIncluded = roleBriefs.filter(e => e.name.includes('Administrator'));
+			console.log("Role Administrator?: " + roleIncluded);
+
+			if (roleIncluded) {
+				/* Remove the toolbar with table, etc. */
+				console.log("toolbar removed");
+				const rem = toolbar.splice(4, 1);
+			
+	   			console.log(rem);
+	   		}
+
+		} catch (error) {
+			console.log(error);
+		}
+	
 		
 		transformedConfig = {
 			...config,
