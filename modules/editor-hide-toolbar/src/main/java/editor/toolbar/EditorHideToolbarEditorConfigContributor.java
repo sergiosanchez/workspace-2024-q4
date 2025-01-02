@@ -13,6 +13,9 @@ import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.model.Role;
+
 
 import java.util.List;
 import java.util.Map;
@@ -41,56 +44,54 @@ public class EditorHideToolbarEditorConfigContributor extends BaseEditorConfigCo
 		
 		if (_log.isWarnEnabled()) {
 			_log.warn("json before:" + jsonObject);
-			//TODO Quitar esto
-			String namespace = GetterUtil.getString(
-			inputEditorTaglibAttributes.get(
-				"liferay-ui:input-editor:namespace"));
-			String name = GetterUtil.getString(
-				inputEditorTaglibAttributes.get("liferay-ui:input-editor:name"));
-			String editorName = GetterUtil.getString(
-				inputEditorTaglibAttributes.get(
-				"liferay-ui:input-editor:editorName"));
-			String editorKey = GetterUtil.getString(
-				inputEditorTaglibAttributes.get(
-				"liferay-ui:input-editor:editorKey"));
-			_log.warn("namespace:" + namespace);
-			_log.warn("name:" + name);
-			_log.warn("editorKey:" + editorKey);
 		}
 		
-		JSONArray toolbarLiferayFinal = JSONFactoryUtil.createJSONArray();
+		JSONArray toolbarSimpleFinal = JSONFactoryUtil.createJSONArray();
 			
-		
-		if (jsonObject != null) {
-			JSONArray toolbarLiferay = jsonObject.getJSONArray("toolbar_liferay");
-			if (toolbarLiferay != null) {
-				for(int i=0; i<toolbarLiferay.length(); i++) {
-					//TODO Arreglar esto
-					if (i!=4) {
+		try {
+			if (jsonObject != null) {
+				JSONArray toolbarSimple = jsonObject.getJSONArray("toolbar_simple");
+				if (toolbarSimple != null) {
+					for(int i=0; i<toolbarSimple.length(); i++) {
+						Object toolbarSimpleElement = toolbarSimple.get(i);
+						
 						if (_log.isWarnEnabled()) {
-							_log.warn("include toolbar:" + toolbarLiferay.get(i));
-							
+							_log.warn("toolbar element:" + toolbarSimpleElement);
 						}
-						toolbarLiferayFinal.put(toolbarLiferay.get(i));
-					} 
-				}	
-				
-				//jsonObject.put("toolbar_liferay", toolbarLiferayFinal);
-				//jsonObject.put("toolbar_editInPlace", toolbarLiferayFinal);
-				//jsonObject.put("toolbar_email", toolbarLiferayFinal);
-				
-				//jsonObject.put("toolbar_liferayArticle", toolbarLiferayFinal);
-				//jsonObject.put("toolbar_phone", toolbarLiferayFinal);
-				jsonObject.put("toolbar_simple", toolbarLiferayFinal);
-				//jsonObject.put("toolbar_tablet", toolbarLiferayFinal);
-				//jsonObject.put("toolbar_text_advanced", toolbarLiferayFinal);
-				//jsonObject.put("toolbar_text_simple",toolbarLiferayFinal);
-		
-			}
+
+						List<Role> roles = themeDisplay.getUser().getRoles();
+
+						Role administrator = RoleLocalServiceUtil.fetchRole(themeDisplay.getCompanyId(), "Administrator");
+
+						if (toolbarSimpleElement!= null && 
+								toolbarSimpleElement.toString().contains("Table") == false &&
+									roles.contains(administrator) == true
+
+						){
+							if (_log.isWarnEnabled()) {
+								_log.warn("include toolbar:" + toolbarSimpleElement);
+								
+							}
+							toolbarSimpleFinal.put(toolbarSimpleElement);
+
+						}
+						
+						
+					}	
+					
+
+					jsonObject.put("toolbar_simple", toolbarSimpleFinal);
+
 			
-		}
-		if (_log.isWarnEnabled()) {
-			_log.warn("json after:" + jsonObject);
+				}
+				
+			}
+			if (_log.isWarnEnabled()) {
+				_log.warn("json after:" + jsonObject);
+			}
+
+		}catch (Exception e){
+			e.printStackTrace();
 		}
 		
 
