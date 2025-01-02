@@ -21,6 +21,7 @@ const fetchUserRoles = async() => {
 		console.log("json: " + json);
 		const {roleBriefs} = json;
 		const roleIncluded = roleBriefs.filter(e => e.name.includes('Administrator'));
+		console.log("roleBriefs: " + roleIncluded);
 		console.log("Exiting async function");
 
 		return roleIncluded;
@@ -47,13 +48,10 @@ const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
 
 			console.log("Checking roles");
 
-			const roles = fetchUserRoles();
-
-			console.log("Coming from async function");
+			fetchUserRoles().then(roles => {
+				console.log("Coming from async function");
 			
-			console.log("roles:", roles);
-
-			if(roles) {
+				console.log("roles:", roles);
 
 				const hasTableElement = (element) => element.includes('Table');
 
@@ -62,23 +60,24 @@ const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
 				const rem = toolbar.splice(position, 1);
 
 				console.log("toolbar deleted: " + rem);
-			}
-				
-			
 
+				transformedConfig = {
+					...config,
+					toolbar,
+				};
+
+				const extraPlugins: string = config.extraPlugins;
+
+				return {
+					...transformedConfig,
+					extraPlugins: extraPlugins ? `${extraPlugins}` : '',
+				};
+
+			});	
+			
 		}
 
-		transformedConfig = {
-			...config,
-			toolbar,
-		};
-
-		const extraPlugins: string = config.extraPlugins;
-
-		return {
-			...transformedConfig,
-			extraPlugins: extraPlugins ? `${extraPlugins}` : '',
-		};
+		
 	} catch (error) {
 		console.log(error);
 	}
