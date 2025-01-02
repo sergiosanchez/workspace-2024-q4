@@ -10,32 +10,34 @@ import {
 declare var CKEDITOR: any;
 declare var Liferay: any;
 
-const checkRoles = async() => {
+const fetchUserRoles = async() => {
 
 	try {
+		console.log("Entering async function");
 
 		/* Retrive the roles of the current user */
-		const result = await Liferay.Util.fetch(`/o/headless-admin-user/v1.0/my-user-account`, {method: 'GET'});
-		
-		const {roleBriefs} = await result.json();
-		console.log("Roles:" + roleBriefs);
-
-		/* Check if within the roles, Administrator is included */
+		const result = await Liferay.Util.fetch('/o/headless-admin-user/v1.0/my-user-account', {method: 'GET'});
+		const json = await result.json();
+		console.log("json: " + json);
+		const {roleBriefs} = json;
 		const roleIncluded = roleBriefs.filter(e => e.name.includes('Administrator'));
-		console.log("Role Administrator?: " + roleIncluded);
-		return roleIncluded;    
+		console.log("Exiting async function");
+
+		return roleIncluded;
+   
 	} catch (error) {
-		console.log(error);
+		return error.message;
 	}
+	
 }
 
-const editorConfigTransformer: EditorConfigTransformer<any> = async(config) => {
+const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
 
 	try {
 		// CKEditor
 		console.log(config);
 
-		const toolbar: [string[]] = config.toolbar_liferay;
+		const toolbar: [string[]] = config.toolbar_simple;
 
 		console.log(toolbar);
 
@@ -45,10 +47,13 @@ const editorConfigTransformer: EditorConfigTransformer<any> = async(config) => {
 
 			console.log("Checking roles");
 
-			const roles = await checkRoles();
+			const roles = fetchUserRoles();
+
+			console.log("Coming from async function");
 		    
-		    if (roles) {
-	            console.log("roles:", roles);
+            console.log("roles:", roles);
+
+            if(roles) {
 
 	            const hasTableElement = (element) => element.includes('Table');
 
@@ -57,8 +62,9 @@ const editorConfigTransformer: EditorConfigTransformer<any> = async(config) => {
 				const rem = toolbar.splice(position, 1);
 			
 	   			console.log("toolbar deleted: " + rem);
+	   		}
 				
-			}
+			
 
 		}
 
