@@ -50,19 +50,19 @@ const editorConfigTransformer: EditorConfigTransformer<any> = (config) => {
 			const roles = fetchUserRoles();
 
 			console.log("Coming from async function");
-		    
-            console.log("roles:", roles);
+			
+			console.log("roles:", roles);
 
-            if(roles) {
+			if(roles) {
 
-	            const hasTableElement = (element) => element.includes('Table');
+				const hasTableElement = (element) => element.includes('Table');
 
 				const position = toolbar.findIndex(hasTableElement);
 				console.log("toolbar position: " + position);
 				const rem = toolbar.splice(position, 1);
-			
-	   			console.log("toolbar deleted: " + rem);
-	   		}
+
+				console.log("toolbar deleted: " + rem);
+			}
 				
 			
 
