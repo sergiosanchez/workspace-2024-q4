@@ -38,8 +38,8 @@ public class EditorAccesibilidadEditorConfigContributor extends BaseEditorConfig
 	ThemeDisplay themeDisplay,
 	RequestBackedPortletURLFactory requestBackedPortletURLFactory) {
 		
-		if (_log.isDebugEnabled()) {
-			_log.debug("json before:" + jsonObject);
+		if (_log.isWarnEnabled()) {
+			_log.warn("json before:" + jsonObject);
 		}
 			
 		String extraPlugins = jsonObject.getString("extraPlugins");
@@ -63,8 +63,8 @@ public class EditorAccesibilidadEditorConfigContributor extends BaseEditorConfig
 		
 		jsonObject.put("toolbar_liferay", toolbarLiferayFinal);
 		
-		if (_log.isDebugEnabled()) {
-			_log.debug("json after:" + jsonObject);
+		if (_log.isWarnEnabled()) {
+			_log.warn("json after:" + jsonObject);
 		}
 		
 
