@@ -1,0 +1,13 @@
+assemble:
+    - from: build
+      into: static
+liferay-editor-hello-world:
+    editorConfigKeys:
+    - sampleAlloyEditor
+    - sampleClassicEditor
+    - sampleLegacyEditor
+    - contentEditor
+    - rich_text
+    name: Liferay Editor Config Contributor Hello World
+    type: editorConfigContributor
+    url: index.js
